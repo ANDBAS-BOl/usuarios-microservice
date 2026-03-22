@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: ${DB_USUARIOS_URL:jdbc:mysql://localhost:3306/pragma_usuarios?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USUARIOS_USER:pragma_user}
+    password: ${DB_USUARIOS_PASSWORD:pragma_pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+# JWT – Usuarios es el ÚNICO emisor del token
+security:
+  jwt:
+    secret: ${JWT_SECRET:pragma_super_secret_key_change_in_production}
+    expiration: 86400000   # 24 horas en ms
+
+appDescription: "Pragma Usuarios Microservice"
+appVersion: "1.0.0"
