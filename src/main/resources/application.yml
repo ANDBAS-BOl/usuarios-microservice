@@ -22,5 +22,11 @@ security:
     secret: ${JWT_SECRET:pragma_super_secret_key_change_in_production}
     expiration: 86400000   # 24 horas en ms
 
+# Semilla de administrador (solo perfil dev — ver AdminSeedRunner)
+admin:
+  seed:
+    email: ${ADMIN_SEED_EMAIL:admin@plazoleta.local}
+    password: ${ADMIN_SEED_PASSWORD:AdminPlazoleta2025!}
+
 appDescription: "Pragma Usuarios Microservice"
 appVersion: "1.0.0"
