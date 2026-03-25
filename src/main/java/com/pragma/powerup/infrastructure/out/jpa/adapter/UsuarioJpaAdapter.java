@@ -36,4 +36,9 @@ public class UsuarioJpaAdapter implements IUsuarioPersistencePort {
     public Optional<UsuarioModel> findByCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo).map(usuarioEntityMapper::toModel);
     }
+
+    @Override
+    public Optional<UsuarioModel> findById(Long id) {
+        return usuarioRepository.findById(id).map(usuarioEntityMapper::toModel);
+    }
 }

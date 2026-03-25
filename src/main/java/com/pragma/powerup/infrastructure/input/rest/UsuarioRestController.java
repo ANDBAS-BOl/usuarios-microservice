@@ -3,6 +3,8 @@ package com.pragma.powerup.infrastructure.input.rest;
 import com.pragma.powerup.application.dto.request.RegistroClienteRequestDto;
 import com.pragma.powerup.application.dto.request.RegistroEmpleadoRequestDto;
 import com.pragma.powerup.application.dto.request.RegistroPropietarioRequestDto;
+import com.pragma.powerup.application.dto.response.UsuarioRoleValidationResponseDto;
+import com.pragma.powerup.application.dto.response.UsuarioRoleEmpleadoValidationResponseDto;
 import com.pragma.powerup.application.dto.response.UsuarioCreadoResponseDto;
 import com.pragma.powerup.application.handler.IUsuarioHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,5 +54,19 @@ public class UsuarioRestController {
     public ResponseEntity<UsuarioCreadoResponseDto> registrarEmpleado(
             @Valid @RequestBody RegistroEmpleadoRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioHandler.registrarEmpleado(dto));
+    }
+
+    @Operation(summary = "Validar si un usuario existe y tiene rol PROPIETARIO", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @GetMapping("/{idUsuario}/validacion-propietario")
+    public ResponseEntity<UsuarioRoleValidationResponseDto> validarPropietario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(usuarioHandler.validarUsuarioPropietario(idUsuario));
+    }
+
+    @Operation(summary = "Validar si un usuario existe y tiene rol EMPLEADO", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','PROPIETARIO')")
+    @GetMapping("/{idUsuario}/validacion-empleado")
+    public ResponseEntity<UsuarioRoleEmpleadoValidationResponseDto> validarEmpleado(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(usuarioHandler.validarUsuarioEmpleado(idUsuario));
     }
 }

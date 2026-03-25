@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Optional;
 
 public class UsuarioUseCase implements IUsuarioServicePort {
 
@@ -53,6 +54,11 @@ public class UsuarioUseCase implements IUsuarioServicePort {
         usuario.setFechaNacimiento(null);
         usuario.setClaveEncriptada(passwordEncoder.encode(clavePlana));
         return usuarioPersistencePort.save(usuario);
+    }
+
+    @Override
+    public Optional<UsuarioModel> buscarPorId(Long id) {
+        return usuarioPersistencePort.findById(id);
     }
 
     private void assertCorreoYDocumentoUnicos(String correo, String documento) {

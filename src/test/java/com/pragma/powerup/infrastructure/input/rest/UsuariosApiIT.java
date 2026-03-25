@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -145,5 +146,102 @@ class UsuariosApiIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"correo\":\"admin@test.local\",\"clave\":\"mala\"}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void validacionPropietarioPorId_ok() throws Exception {
+        MvcResult loginAdmin = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"correo\":\"admin@test.local\",\"clave\":\"AdminTest1!\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String tokenAdmin = objectMapper.readTree(loginAdmin.getResponse().getContentAsString()).get("token").asText();
+
+        MvcResult createOwner = mockMvc.perform(post("/api/v1/usuarios/propietarios")
+                        .header("Authorization", "Bearer " + tokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Dueño",
+                                  "apellido": "Valid",
+                                  "documentoIdentidad": "444555666",
+                                  "celular": "+573001234567",
+                                  "fechaNacimiento": "1980-01-01",
+                                  "correo": "valid.owner@test.local",
+                                  "clave": "OwnerPass123"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long ownerId = objectMapper.readTree(createOwner.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(get("/api/v1/usuarios/{id}/validacion-propietario", ownerId)
+                        .header("Authorization", "Bearer " + tokenAdmin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idUsuario").value(ownerId))
+                .andExpect(jsonPath("$.rol").value("PROPIETARIO"))
+                .andExpect(jsonPath("$.propietarioValido").value(true));
+    }
+
+    @Test
+    void validacionEmpleadoPorId_ok() throws Exception {
+        // Admin crea un propietario
+        MvcResult loginAdmin = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"correo\":\"admin@test.local\",\"clave\":\"AdminTest1!\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String tokenAdmin = objectMapper.readTree(loginAdmin.getResponse().getContentAsString()).get("token").asText();
+
+        MvcResult createOwner = mockMvc.perform(post("/api/v1/usuarios/propietarios")
+                        .header("Authorization", "Bearer " + tokenAdmin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre": "Dueño",
+                                  "apellido": "Valid",
+                                  "documentoIdentidad": "444555667",
+                                  "celular": "+573001234568",
+                                  "fechaNacimiento": "1980-01-01",
+                                  "correo": "valid.owner2@test.local",
+                                  "clave": "OwnerPass123"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long ownerId = objectMapper.readTree(createOwner.getResponse().getContentAsString()).get("id").asLong();
+
+        // Login del propietario
+        MvcResult loginOwner = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"correo\":\"valid.owner2@test.local\",\"clave\":\"OwnerPass123\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String tokenOwner = objectMapper.readTree(loginOwner.getResponse().getContentAsString()).get("token").asText();
+
+        String empleadoJson = """
+                {
+                  "nombre": "Emp",
+                  "apellido": "Uno",
+                  "documentoIdentidad": "300400501",
+                  "celular": "+573001122335",
+                  "correo": "emp2@test.local",
+                  "clave": "EmpPass1234"
+                }
+                """;
+        MvcResult createEmployee = mockMvc.perform(post("/api/v1/usuarios/empleados")
+                        .header("Authorization", "Bearer " + tokenOwner)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(empleadoJson))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long employeeId = objectMapper.readTree(createEmployee.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(get("/api/v1/usuarios/{id}/validacion-empleado", employeeId)
+                        .header("Authorization", "Bearer " + tokenOwner))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idUsuario").value(employeeId))
+                .andExpect(jsonPath("$.rol").value("EMPLEADO"))
+                .andExpect(jsonPath("$.empleadoValido").value(true));
     }
 }

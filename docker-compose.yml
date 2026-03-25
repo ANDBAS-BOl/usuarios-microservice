@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  usuarios:
+    container_name: pragma-usuarios
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      JWT_SECRET: pragma_super_secret_key_change_in_production
+      DB_USUARIOS_URL: jdbc:mysql://pragma-mysql:3306/pragma_usuarios?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USUARIOS_USER: pragma_user
+      DB_USUARIOS_PASSWORD: pragma_pass
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - pragma-net
+
+networks:
+  pragma-net:
+    external: true
+

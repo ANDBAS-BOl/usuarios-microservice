@@ -12,9 +12,11 @@ Este microservicio es responsable de la gestión centralizada de usuarios, roles
 * Gradle 8.5.
 * Docker y Docker Compose para levantar la base de datos (puerto 3306).
 
-## Configuración y Ejecución
-1. Levantar la base de datos:
-   Desde la raíz del proyecto principal, ejecute:
+## Cómo ejecutar localmente
+Repositorio de infraestructura: [plazoleta-deployment](https://github.com/ANDBAS-BOl/plazoleta-deployment)
+
+1. Levantar bases de datos:
+   Desde la carpeta `plazoleta-deployment`, ejecute:
    ```bash
    docker compose -f docker/compose-db.yml up -d
    ```

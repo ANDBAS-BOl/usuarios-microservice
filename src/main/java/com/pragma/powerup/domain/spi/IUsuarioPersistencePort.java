@@ -13,4 +13,6 @@ public interface IUsuarioPersistencePort {
     boolean existsByDocumentoIdentidad(String documentoIdentidad);
 
     Optional<UsuarioModel> findByCorreo(String correo);
+
+    Optional<UsuarioModel> findById(Long id);
 }
