@@ -4,6 +4,7 @@ import com.pragma.powerup.domain.exception.ConflictoException;
 import com.pragma.powerup.domain.exception.DomainException;
 import com.pragma.powerup.domain.model.Rol;
 import com.pragma.powerup.domain.model.UsuarioModel;
+import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
 import com.pragma.powerup.domain.spi.IUsuarioPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,12 +30,14 @@ class UsuarioUseCaseTest {
     private IUsuarioPersistencePort persistencePort;
 
     private PasswordEncoder passwordEncoder;
+    private IPasswordEncoderPort passwordEncoderPort;
     private UsuarioUseCase useCase;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        useCase = new UsuarioUseCase(persistencePort, passwordEncoder);
+        passwordEncoderPort = passwordEncoder::encode;
+        useCase = new UsuarioUseCase(persistencePort, passwordEncoderPort);
     }
 
     @Test

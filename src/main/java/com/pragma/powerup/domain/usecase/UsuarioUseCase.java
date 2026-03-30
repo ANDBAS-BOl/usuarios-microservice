@@ -5,8 +5,8 @@ import com.pragma.powerup.domain.exception.ConflictoException;
 import com.pragma.powerup.domain.exception.DomainException;
 import com.pragma.powerup.domain.model.Rol;
 import com.pragma.powerup.domain.model.UsuarioModel;
+import com.pragma.powerup.domain.spi.IPasswordEncoderPort;
 import com.pragma.powerup.domain.spi.IUsuarioPersistencePort;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -17,11 +17,11 @@ public class UsuarioUseCase implements IUsuarioServicePort {
     private static final int MAYORIA_EDAD_ANIOS = 18;
 
     private final IUsuarioPersistencePort usuarioPersistencePort;
-    private final PasswordEncoder passwordEncoder;
+    private final IPasswordEncoderPort passwordEncoderPort;
 
-    public UsuarioUseCase(IUsuarioPersistencePort usuarioPersistencePort, PasswordEncoder passwordEncoder) {
+    public UsuarioUseCase(IUsuarioPersistencePort usuarioPersistencePort, IPasswordEncoderPort passwordEncoderPort) {
         this.usuarioPersistencePort = usuarioPersistencePort;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoderPort = passwordEncoderPort;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class UsuarioUseCase implements IUsuarioServicePort {
         assertCorreoYDocumentoUnicos(usuario.getCorreo(), usuario.getDocumentoIdentidad());
         usuario.setRol(Rol.CLIENTE);
         usuario.setFechaNacimiento(null);
-        usuario.setClaveEncriptada(passwordEncoder.encode(clavePlana));
+        usuario.setClaveEncriptada(passwordEncoderPort.encode(clavePlana));
         return usuarioPersistencePort.save(usuario);
     }
 
@@ -43,7 +43,7 @@ public class UsuarioUseCase implements IUsuarioServicePort {
             throw new DomainException("El propietario debe ser mayor de edad");
         }
         usuario.setRol(Rol.PROPIETARIO);
-        usuario.setClaveEncriptada(passwordEncoder.encode(clavePlana));
+        usuario.setClaveEncriptada(passwordEncoderPort.encode(clavePlana));
         return usuarioPersistencePort.save(usuario);
     }
 
@@ -52,7 +52,7 @@ public class UsuarioUseCase implements IUsuarioServicePort {
         assertCorreoYDocumentoUnicos(usuario.getCorreo(), usuario.getDocumentoIdentidad());
         usuario.setRol(Rol.EMPLEADO);
         usuario.setFechaNacimiento(null);
-        usuario.setClaveEncriptada(passwordEncoder.encode(clavePlana));
+        usuario.setClaveEncriptada(passwordEncoderPort.encode(clavePlana));
         return usuarioPersistencePort.save(usuario);
     }
 
