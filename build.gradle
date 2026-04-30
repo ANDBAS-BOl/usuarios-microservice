@@ -36,6 +36,7 @@ dependencies {
 	developmentOnly "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
 	testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 	testImplementation "com.h2database:h2"
+	testImplementation "com.tngtech.archunit:archunit-junit5:1.1.0"
 
 	runtimeOnly "mysql:mysql-connector-java:${mySqlConnectorVersion}"
 
